@@ -2,31 +2,8 @@
    WHERE WE EATING? — Stylesheet
    ============================================================ */
 
-/* ── LIGHT THEME (default) ── */
+/* ── DARK THEME (default) ── */
 :root {
-  --bg: #f4f9ff;
-  --surface: #ffffff;
-  --border: #d6e8f5;
-  --accent: #1a8fe8;
-  --accent2: #ff6b3d;
-  --accent3: #20c472;
-  --text: #0f2233;
-  --muted: #7a9ab8;
-  --bg-grad1: #c8e8ff55;
-  --bg-grad2: #ffe0d055;
-  --canvas-empty: #d6e8f5;
-  --canvas-empty-text: #7a9ab8;
-  --canvas-stroke: #ffffff;
-  --canvas-label: #ffffff;
-  --canvas-cap: #ffffff;
-  --canvas-cap-stroke: #1a8fe8;
-  --wheel-glow: #1a8fe830;
-  --wheel-glow2: #1a8fe818;
-  --panel-shadow: 0 2px 16px #1a8fe812;
-}
-
-/* ── DARK THEME ── */
-[data-theme="dark"] {
   --bg: #0d1117;
   --surface: #161b22;
   --border: #1e2d3d;
@@ -46,6 +23,29 @@
   --wheel-glow: #58a6ff22;
   --wheel-glow2: #58a6ff12;
   --panel-shadow: none;
+}
+
+/* ── LIGHT THEME ── */
+[data-theme="light"] {
+  --bg: #f4f9ff;
+  --surface: #ffffff;
+  --border: #d6e8f5;
+  --accent: #1a8fe8;
+  --accent2: #ff6b3d;
+  --accent3: #20c472;
+  --text: #0f2233;
+  --muted: #7a9ab8;
+  --bg-grad1: #c8e8ff55;
+  --bg-grad2: #ffe0d055;
+  --canvas-empty: #d6e8f5;
+  --canvas-empty-text: #7a9ab8;
+  --canvas-stroke: #ffffff;
+  --canvas-label: #ffffff;
+  --canvas-cap: #ffffff;
+  --canvas-cap-stroke: #1a8fe8;
+  --wheel-glow: #1a8fe830;
+  --wheel-glow2: #1a8fe818;
+  --panel-shadow: 0 2px 16px #1a8fe812;
 }
 
 /* ── RESET ── */
@@ -603,3 +603,263 @@ h1 {
     max-height: 180px;
   }
 }
+
+/* ── DARK THEME DEFAULT ── */
+/* Dark is set as default — :root holds dark, light is the override */
+
+/* ── PANEL HEADER (title + reset btn row) ── */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.65rem;
+}
+
+.panel-header h2 {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reset-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.78rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.reset-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+
+/* ── INFO BUTTON on list items ── */
+.info-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 3px;
+  transition: color 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.info-btn:hover { color: var(--accent); }
+
+/* ── COOKIE BANNER ── */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  z-index: 1000;
+  box-shadow: 0 -4px 24px #00000022;
+  display: none; /* shown by JS when needed */
+}
+
+.cookie-banner.visible { display: block; }
+
+.cookie-content {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cookie-text {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  min-width: 200px;
+}
+
+.cookie-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cookie-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.cookie-btn:hover { opacity: 0.85; }
+.cookie-accept  { background: var(--accent3); color: #0a1a0f; }
+.cookie-decline { background: var(--border);  color: var(--muted); }
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #00000088;
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal--sm { max-width: 380px; }
+
+.modal h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.modal h3 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 0.4rem;
+}
+
+.modal p, .modal li {
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.modal ul {
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.modal-close:hover { color: var(--text); }
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* ── INFO MODAL CONTENT ── */
+.info-maps-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  transition: opacity 0.15s;
+  margin-top: 0.4rem;
+}
+
+.info-maps-link:hover { opacity: 0.85; }
+
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-row {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.info-label {
+  color: var(--muted);
+  font-weight: 600;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.info-link {
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.info-link:hover { text-decoration: underline; }
+
+/* ── FOOTER ── */
+.site-footer {
+  margin-top: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.footer-link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.footer-link:hover { color: var(--text); }
+.footer-sep { color: var(--border); }

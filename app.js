@@ -9,9 +9,10 @@ const COLORS = [
   '#3f51b5', '#4caf50',
 ];
 
-let restaurants = ['Pizza', 'Sushi', 'Tacos', 'Burgers', 'Thai', 'Italian'];
+let restaurants = [];
 let spinning     = false;
 let currentAngle = 0;
+let isDark       = true; // dark is the default, overridden at init
 
 const canvas  = document.getElementById('wheelCanvas');
 const ctx     = canvas.getContext('2d');
@@ -151,7 +152,7 @@ function renderList() {
       <div class="item">
         <span class="item-dot" style="background:${COLORS[i % COLORS.length]}"></span>
         <span class="item-name" title="${r}">${r}</span>
-        <button class="del-btn" onclick="removeItem(${i})" title="Remove">✕</button>
+        <button class="del-btn"  onclick="removeItem(${i})" title="Remove">✕</button>
       </div>
     `).join('');
   }
@@ -164,26 +165,30 @@ function addItem() {
   if (!val) return;
   restaurants.push(val);
   input.value = '';
+  saveRestaurants(restaurants);
   renderList();
   resultEl.classList.remove('show');
 }
 
 function removeItem(i) {
   restaurants.splice(i, 1);
+  saveRestaurants(restaurants);
   renderList();
   resultEl.classList.remove('show');
 }
 
 // ── Theme toggle ─────────────────────────────────────────────
 
-let isDark = false;
-
 function toggleTheme() {
   isDark = !isDark;
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+  applyTheme();
+  saveTheme(isDark);
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'light');
   document.getElementById('themeIcon').textContent  = isDark ? '☀️' : '🌙';
   document.getElementById('themeLabel').textContent = isDark ? 'Light mode' : 'Dark mode';
-  // Small delay so CSS variables update before the canvas redraws
   setTimeout(() => drawWheel(currentAngle), 20);
 }
 
@@ -312,6 +317,15 @@ async function searchNearCoords(lat, lon, miles) {
         name:    e.tags.name,
         cuisine: e.tags.cuisine || '',
         dist:    haversine(lat, lon, e.lat, e.lon),
+        phone:   e.tags.phone || e.tags['contact:phone'] || '',
+        website: e.tags.website || e.tags['contact:website'] || e.tags.url || '',
+        hours:   e.tags.opening_hours || '',
+        address: [
+          [e.tags['addr:housenumber'], e.tags['addr:street']].filter(Boolean).join(' '),
+          e.tags['addr:city'],
+          e.tags['addr:state'],
+          e.tags['addr:postcode'],
+        ].filter(Boolean).join(', '),
       }))
       .filter((v, i, arr) => arr.findIndex(x => x.name === v.name) === i) // dedupe
       .sort((a, b) => a.dist - b.dist)
@@ -352,6 +366,7 @@ function renderNearby() {
           <div class="nearby-item-name" title="${p.name}">${p.name}</div>
           <div class="nearby-item-dist">${p.dist.toFixed(1)} mi${p.cuisine ? ' · ' + p.cuisine.replace(/_/g, ' ') : ''}</div>
         </div>
+        <button class="info-btn" onclick="openInfoModal(${i})" title="Info">ℹ️</button>
         <button class="add-nearby-btn ${alreadyOn ? 'added' : ''}"
                 id="nearby-btn-${i}"
                 onclick="addNearbyOne(${i})"
@@ -367,6 +382,7 @@ function addNearbyOne(i) {
   const place = nearbyPlaces[i];
   if (!place || restaurants.includes(place.name)) return;
   restaurants.push(place.name);
+  saveRestaurants(restaurants);
   renderList();
   resultEl.classList.remove('show');
   const btn = document.getElementById(`nearby-btn-${i}`);
@@ -381,9 +397,87 @@ function addAllNearby() {
       if (btn) { btn.textContent = '✓ Added'; btn.classList.add('added'); btn.disabled = true; }
     }
   });
+  saveRestaurants(restaurants);
   renderList();
   resultEl.classList.remove('show');
 }
+
+// ── Reset / Clear ─────────────────────────────────────────────
+
+function openResetModal() {
+  document.getElementById('resetModal').style.display = 'flex';
+}
+
+function closeResetModal() {
+  document.getElementById('resetModal').style.display = 'none';
+}
+
+function confirmReset() {
+  restaurants = [];
+  saveRestaurants(restaurants);
+  renderList();
+  resultEl.classList.remove('show');
+  closeResetModal();
+}
+
+// ── Restaurant info modal ─────────────────────────────────────
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function openInfoModal(i) {
+  const place = nearbyPlaces[i];
+  if (!place) return;
+
+  document.getElementById('infoModalName').textContent = place.name;
+
+  const rows = [];
+
+  if (place.cuisine) {
+    rows.push(`<div class="info-row"><span class="info-label">Cuisine</span><span>${esc(place.cuisine.replace(/_/g, ' '))}</span></div>`);
+  }
+  rows.push(`<div class="info-row"><span class="info-label">Distance</span><span>${place.dist.toFixed(1)} mi away</span></div>`);
+  if (place.address) {
+    rows.push(`<div class="info-row"><span class="info-label">Address</span><span>${esc(place.address)}</span></div>`);
+  }
+  if (place.phone) {
+    rows.push(`<div class="info-row"><span class="info-label">Phone</span><a class="info-link" href="tel:${esc(place.phone)}">${esc(place.phone)}</a></div>`);
+  }
+  if (place.hours) {
+    rows.push(`<div class="info-row"><span class="info-label">Hours</span><span>${esc(place.hours)}</span></div>`);
+  }
+  const safeWebsite = /^https?:\/\//i.test(place.website) ? place.website : '';
+  if (safeWebsite) {
+    rows.push(`<div class="info-row"><span class="info-label">Website</span><a class="info-link" href="${esc(safeWebsite)}" target="_blank" rel="noopener noreferrer">${esc(safeWebsite.replace(/^https?:\/\//, ''))}</a></div>`);
+  }
+
+  const mapsQuery = place.address ? `${place.name} ${place.address}` : place.name;
+  const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`;
+
+  document.getElementById('infoModalBody').innerHTML = `
+    ${rows.length ? `<div class="info-rows">${rows.join('')}</div>` : ''}
+    <a class="info-maps-link" href="${mapsUrl}" target="_blank" rel="noopener noreferrer">
+      🗺️ Open in Google Maps
+    </a>
+  `;
+  document.getElementById('infoModal').style.display = 'flex';
+}
+
+function closeInfoModal() {
+  document.getElementById('infoModal').style.display = 'none';
+}
+
+// Close modals on overlay click
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) {
+    e.target.style.display = 'none';
+  }
+});
 
 // ── Canvas resize observer ───────────────────────────────────
 
@@ -398,4 +492,24 @@ const resizeObserver = new ResizeObserver(() => {
 resizeObserver.observe(canvas);
 
 // ── Init ─────────────────────────────────────────────────────
+restaurants = loadRestaurants();
+isDark      = loadTheme() === 'dark';
+applyTheme();
 renderList();
+initCookieBanner();
+
+// ── Expose functions to global scope for inline onclick handlers ──
+window.spin             = spin;
+window.toggleTheme      = toggleTheme;
+window.addItem          = addItem;
+window.removeItem       = removeItem;
+window.openResetModal   = openResetModal;
+window.closeResetModal  = closeResetModal;
+window.confirmReset     = confirmReset;
+window.openInfoModal    = openInfoModal;
+window.closeInfoModal   = closeInfoModal;
+window.switchTab        = switchTab;
+window.findNearbyGps    = findNearbyGps;
+window.findNearbyZip    = findNearbyZip;
+window.addNearbyOne     = addNearbyOne;
+window.addAllNearby     = addAllNearby;

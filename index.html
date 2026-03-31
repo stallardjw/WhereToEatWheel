@@ -9,13 +9,75 @@
 </head>
 <body>
 
+  <!-- ── COOKIE CONSENT BANNER ── -->
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-live="polite" aria-label="Cookie notice">
+    <div class="cookie-content">
+      <p class="cookie-text">
+        🍪 This site stores a small cookie on your device to remember your restaurant list and preferences.
+        No personal data is collected, no tracking, no third parties.
+        <button class="cookie-link" onclick="showCookiePolicy()">Learn more</button>
+      </p>
+      <div class="cookie-actions">
+        <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
+        <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COOKIE POLICY MODAL ── -->
+  <div class="modal-overlay" id="cookieModal" style="display:none" role="dialog" aria-modal="true" aria-label="Cookie policy">
+    <div class="modal">
+      <button class="modal-close" onclick="closeCookiePolicy()" aria-label="Close">✕</button>
+      <h2>Cookie &amp; Storage Policy</h2>
+      <p>This site uses <strong>one functional cookie</strong> and <strong>localStorage</strong> to save your personal list of restaurants and theme preference between visits.</p>
+      <h3>What we store</h3>
+      <ul>
+        <li><strong>weating_uid</strong> (cookie) — A randomly generated ID unique to your browser. This is not linked to any personal information.</li>
+        <li><strong>weating_[uid]_restaurants</strong> (localStorage) — Your saved restaurant list.</li>
+        <li><strong>weating_[uid]_theme</strong> (localStorage) — Your light/dark theme preference.</li>
+      </ul>
+      <h3>What we do NOT do</h3>
+      <ul>
+        <li>We do not collect, transmit, or share any personal data.</li>
+        <li>We do not use advertising or analytics cookies.</li>
+        <li>We do not track your location or browsing behaviour.</li>
+      </ul>
+      <h3>Your rights</h3>
+      <p>You can decline cookies at any time. If you decline, nothing is saved and your list will reset on each visit. You can also clear all stored data using the Reset button in the app.</p>
+      <p>Location access (used by the "Find Nearby" feature) is requested separately by your browser and is never stored by this site.</p>
+      <button class="cookie-btn cookie-accept" onclick="acceptCookies(); closeCookiePolicy()">Accept &amp; Close</button>
+      <button class="cookie-btn cookie-decline" onclick="declineCookies(); closeCookiePolicy()">Decline &amp; Close</button>
+    </div>
+  </div>
+
+  <!-- ── RESET CONFIRM MODAL ── -->
+  <div class="modal-overlay" id="resetModal" style="display:none" role="dialog" aria-modal="true" aria-label="Reset confirmation">
+    <div class="modal modal--sm">
+      <h2>Clear the wheel?</h2>
+      <p>This will remove all restaurants from your list. This cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="cookie-btn cookie-accept" onclick="confirmReset()">Yes, clear it</button>
+        <button class="cookie-btn cookie-decline" onclick="closeResetModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAPS INFO MODAL ── -->
+  <div class="modal-overlay" id="infoModal" style="display:none" role="dialog" aria-modal="true" aria-label="Restaurant info">
+    <div class="modal modal--sm">
+      <button class="modal-close" onclick="closeInfoModal()" aria-label="Close">✕</button>
+      <h2 id="infoModalName"></h2>
+      <div id="infoModalBody"></div>
+    </div>
+  </div>
+
   <!-- ── HEADER ── -->
   <div class="header">
     <h1>Where We Eating?</h1>
     <p class="subtitle">spin to decide</p>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
-      <span class="toggle-icon" id="themeIcon">🌙</span>
-      <span id="themeLabel">Dark mode</span>
+      <span class="toggle-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel">Light mode</span>
     </button>
   </div>
 
@@ -41,13 +103,11 @@
       <div class="nearby-panel">
         <h2>📍 Find Nearby Restaurants</h2>
 
-        <!-- Location method tabs -->
         <div class="loc-tabs">
           <button class="loc-tab active" id="tabGps" onclick="switchTab('gps')">📡 Use My Location</button>
           <button class="loc-tab"        id="tabZip" onclick="switchTab('zip')">🔢 Enter ZIP Code</button>
         </div>
 
-        <!-- GPS panel -->
         <div class="loc-panel" id="panelGps">
           <div class="nearby-controls">
             <label for="milesInput">Within</label>
@@ -57,7 +117,6 @@
           </div>
         </div>
 
-        <!-- ZIP panel -->
         <div class="loc-panel" id="panelZip" style="display:none">
           <div class="nearby-controls">
             <input type="text" id="zipInput" class="zip-input" placeholder="e.g. 16501" maxlength="10"
@@ -78,7 +137,10 @@
 
       <!-- MANUAL RESTAURANT LIST -->
       <div class="panel">
-        <h2>🍴 Restaurant List</h2>
+        <div class="panel-header">
+          <h2>🍴 Restaurant List</h2>
+          <button class="reset-btn" onclick="openResetModal()" title="Clear all restaurants">🗑 Clear</button>
+        </div>
         <div class="add-row">
           <input type="text" id="nameInput" placeholder="Add a restaurant…"
             onkeydown="if(event.key==='Enter') addItem()" maxlength="30" />
@@ -90,6 +152,14 @@
     </div><!-- /panels-column -->
   </div><!-- /page-grid -->
 
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <button class="footer-link" onclick="showCookiePolicy()">Cookie Policy</button>
+    <span class="footer-sep">·</span>
+    <button class="footer-link" onclick="openCookieSettings()">Cookie Settings</button>
+  </footer>
+
+  <script src="storage.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
