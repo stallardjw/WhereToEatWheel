@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍽️ Where We Eating?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <h1>Where We Eating?</h1>
+    <p class="subtitle">spin to decide</p>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+      <span class="toggle-icon" id="themeIcon">🌙</span>
+      <span id="themeLabel">Dark mode</span>
+    </button>
+  </div>
+
+  <!-- ── PAGE GRID ── -->
+  <div class="page-grid">
+
+    <!-- WHEEL -->
+    <div class="wheel-section">
+      <div class="wheel-wrapper">
+        <canvas id="wheelCanvas" width="380" height="380"></canvas>
+        <div class="pointer"></div>
+      </div>
+      <div class="result-banner">
+        <div class="result-text" id="resultText"></div>
+      </div>
+      <button class="spin-btn" id="spinBtn" onclick="spin()">Spin the Wheel</button>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="panels-column">
+
+      <!-- NEARBY FINDER -->
+      <div class="nearby-panel">
+        <h2>📍 Find Nearby Restaurants</h2>
+
+        <!-- Location method tabs -->
+        <div class="loc-tabs">
+          <button class="loc-tab active" id="tabGps" onclick="switchTab('gps')">📡 Use My Location</button>
+          <button class="loc-tab"        id="tabZip" onclick="switchTab('zip')">🔢 Enter ZIP Code</button>
+        </div>
+
+        <!-- GPS panel -->
+        <div class="loc-panel" id="panelGps">
+          <div class="nearby-controls">
+            <label for="milesInput">Within</label>
+            <input type="number" id="milesInput" class="miles-input" value="5" min="0.5" max="50" step="0.5" />
+            <label for="milesInput">miles</label>
+            <button class="find-btn" id="findBtn" onclick="findNearbyGps()">Locate Me</button>
+          </div>
+        </div>
+
+        <!-- ZIP panel -->
+        <div class="loc-panel" id="panelZip" style="display:none">
+          <div class="nearby-controls">
+            <input type="text" id="zipInput" class="zip-input" placeholder="e.g. 16501" maxlength="10"
+              onkeydown="if(event.key==='Enter') findNearbyZip()" />
+            <label for="milesInput2">within</label>
+            <input type="number" id="milesInput2" class="miles-input" value="5" min="0.5" max="50" step="0.5" />
+            <label for="milesInput2">mi</label>
+            <button class="find-btn" id="findBtnZip" onclick="findNearbyZip()">Search</button>
+          </div>
+        </div>
+
+        <div class="nearby-status" id="nearbyStatus"></div>
+        <div class="nearby-results" id="nearbyResults"></div>
+        <div class="add-all-row" id="addAllRow" style="display:none">
+          <button class="add-all-btn" onclick="addAllNearby()">+ Add All to Wheel</button>
+        </div>
+      </div>
+
+      <!-- MANUAL RESTAURANT LIST -->
+      <div class="panel">
+        <h2>🍴 Restaurant List</h2>
+        <div class="add-row">
+          <input type="text" id="nameInput" placeholder="Add a restaurant…"
+            onkeydown="if(event.key==='Enter') addItem()" maxlength="30" />
+          <button class="add-btn" onclick="addItem()">+</button>
+        </div>
+        <div class="restaurant-list" id="list"></div>
+      </div>
+
+    </div><!-- /panels-column -->
+  </div><!-- /page-grid -->
+
+  <script src="app.js"></script>
+</body>
+</html>
